@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<properties>
+		<title>Lutece : insertmap</title>
+	</properties>
+	<body>
+		<section name="Welcome to InsertMap">
+			<subsection name="Introduction">
+				<p>
+				Allows you to insert map into your pages (google maps). 
+				</p>
+			</subsection>
+			<subsection name="Configuration">
+				<p>
+					The google key must be conigure "Site>Manage site properties"
+				</p>
+			</subsection>
+		</section>
+	</body>
+</document>
+          

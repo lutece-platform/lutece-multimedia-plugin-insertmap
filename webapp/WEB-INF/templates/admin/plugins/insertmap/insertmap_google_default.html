@@ -1,0 +1,37 @@
+<div style="width:${width}px;">
+	<div style="text-align:right;width:100%;display:none;">
+		<a 
+		href="http://paris-a-la-carte-version-pl.paris.fr/carto/mapping?typeRecherche=A&adresse=${address}" 
+		target="parisalacarte" >Zoom</a>
+	</div>
+	<div id="map" style="height:${height}px;"></div>
+</div>
+<script src="http://maps.google.com/maps?file=api&v=2&key=${gkey}" type="text/javascript"></script>
+<script language="JavaScript" type="text/javascript">
+
+	var zoom = ${zoom};
+	
+	function getIcon(keyWord) {
+		var redIcon = new GIcon();
+		redIcon.shadow = "images/admin/skin/plugins/insertmap/mm_20_shadow.png";
+		redIcon.iconSize = new GSize(12, 20);
+		redIcon.shadowSize = new GSize(22, 20);
+		redIcon.iconAnchor = new GPoint(6, 20);
+		redIcon.infoWindowAnchor = new GPoint(5, 1);
+		redIcon.image = "images/admin/skin/plugins/insertmap/mm_20_"+keyWord+".png"; 
+		return redIcon;
+	}
+
+	var map = new GMap(document.getElementById("map"));
+	var point = new GLatLng(${y}, ${x});
+	map.setCenter(point, zoom);
+	map.addControl(new GSmallMapControl());
+	map.enableScrollWheelZoom();
+
+	var marker = new GMarker(point, getIcon("red"));
+	GEvent.addListener(marker, "click", function() {
+		map.setZoom(zoom);
+		map.panTo(point);
+	});
+	map.addOverlay(marker);
+</script>  
