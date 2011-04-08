@@ -36,7 +36,6 @@ package fr.paris.lutece.plugins.insertmap.web;
 import fr.paris.lutece.portal.service.admin.AdminUserService;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
 import fr.paris.lutece.portal.service.util.AppPathService;
-import fr.paris.lutece.portal.service.util.AppPropertiesService;
 import fr.paris.lutece.portal.web.insert.InsertServiceJspBean;
 import fr.paris.lutece.portal.web.insert.InsertServiceSelectionBean;
 import fr.paris.lutece.util.html.HtmlTemplate;
@@ -51,29 +50,21 @@ import javax.servlet.http.HttpServletRequest;
 /**
  *
  */
-public class InsertMapJspBean extends InsertServiceJspBean implements InsertServiceSelectionBean
+public final class InsertMapJspBean extends InsertServiceJspBean implements InsertServiceSelectionBean
 {
     private static final long serialVersionUID = 8529163405839151344L;
     private static final String TEMPLATE_SELECTOR_PAGE = "admin/plugins/insertmap/insertmap_selector.html";
     private static final String PARAMETER_INPUT = "input";
     private static final String BASE_URL = "baseUrl";
-    private static final String GKEY_KEY = "gkey";
-    private static final String X = "x";
-    private static final String Y = "y";
     private static final String WIDTH = "width";
     private static final String ZOOM = "zoom";
     private static final String HEIDHT = "height";
     private static final String ADDRESS = "address";
-    private static String GKEY_VALUE = "";
-    private static final String PROPERTY_WEBMASTER_GKEY = "google.key";
-    private String _input;
+    private String input;
 
     private void init( HttpServletRequest request )
     {
-        _input = request.getParameter( PARAMETER_INPUT ); //for the html popup to go in the WYSYWYG editor
-
-        String gkey = AppPropertiesService.getProperty( PROPERTY_WEBMASTER_GKEY );
-        GKEY_VALUE = gkey;
+        input = request.getParameter( PARAMETER_INPUT ); //for the html popup to go in the WYSYWYG editor
     }
 
     /**
@@ -82,15 +73,14 @@ public class InsertMapJspBean extends InsertServiceJspBean implements InsertServ
      * @param request The Http Request
      * @return The html form.
      */
-    public String getInsertServiceSelectorUI( HttpServletRequest request )
+    public final String getInsertServiceSelectorUI( HttpServletRequest request )
     {
         init( request );
 
         Map<String, Object> model = new HashMap<String, Object>(  );
         String strBaseUrl = AppPathService.getBaseUrl( request );
         model.put( BASE_URL, strBaseUrl );
-        model.put( PARAMETER_INPUT, _input );
-        model.put( GKEY_KEY, GKEY_VALUE );
+        model.put( PARAMETER_INPUT, input );
 
         Locale locale = AdminUserService.getLocale( request );
         HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SELECTOR_PAGE, locale, model );
@@ -98,7 +88,7 @@ public class InsertMapJspBean extends InsertServiceJspBean implements InsertServ
         return template.getHtml(  );
     }
 
-    public String doInsertLink( HttpServletRequest request )
+    public final String doInsertLink( HttpServletRequest request )
     {
         String strTemplateName = request.getParameter( "mapName" );
 
@@ -108,13 +98,11 @@ public class InsertMapJspBean extends InsertServiceJspBean implements InsertServ
         Map<String, Object> model = new HashMap<String, Object>(  );
         String strBaseUrl = AppPathService.getBaseUrl( request );
         model.put( BASE_URL, strBaseUrl );
-        model.put( X, request.getParameter( X ) );
-        model.put( Y, request.getParameter( Y ) );
+        model.put( ADDRESS, request.getParameter( ADDRESS ) );
         model.put( WIDTH, request.getParameter( WIDTH ) );
         model.put( ZOOM, request.getParameter( ZOOM ) );
         model.put( HEIDHT, request.getParameter( HEIDHT ) );
         model.put( ADDRESS, request.getParameter( ADDRESS ) );
-        model.put( GKEY_KEY, request.getParameter( "gkey" ) );
 
         Locale locale = AdminUserService.getLocale( request );
         String strTemplateAddress = "admin/plugins/insertmap/insertmap_" + strTemplateName + "_default.html";
