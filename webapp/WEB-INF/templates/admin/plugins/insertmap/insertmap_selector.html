@@ -1,0 +1,80 @@
+<div class="insert-service">
+	<form action="jsp/admin/plugins/insertmap/DoInsertMap.jsp" name="newMapForm">
+	<input type="hidden" name="input" value="${input}" />
+	<input type="hidden" name="width" value="300" />
+	<input type="hidden" name="height" value="250"/>
+	<input type="hidden" name="zoom" value="14"/>
+	<input type="hidden" name="mapName" value="googlestatic"/>
+<!-- 
+	#i18n{insertmap.message.mapChoose}<br />
+	<input type="radio" name="mapName" value="google" id="google" /> #i18n{insertmap.message.google.normal}<br />
+	<input type="radio" name="mapName" value="googlestatic" id="googlestatic" checked="checked" /> #i18n{insertmap.message.google.static}<br />
+ -->
+ 
+	#i18n{insertmap.message.addressChoose}<br />
+	<input id="address" name="address" value="227 rue de bercy, paris, france" type="text" size="45" onchange="generateMap()" />
+	<input type="button" value="Prévisualiser" onclick="generateMap()" />
+	<input type="button" value="Valider" onclick="validateAddress()" /><br />
+	<br />
+	<input type="button" value="-" onclick="zoomFunction('-')" />
+	<input type="button" value="+" onclick="zoomFunction('+')" />
+	#i18n{insertmap.message.zoomSize}<br />
+	<input type="button" value="-" onclick="zoomZoom('-')" />
+	<input type="button" value="+" onclick="zoomZoom('+')" />
+	#i18n{insertmap.message.zoomZoom}<br />
+	</form>
+	<br />
+	<img id="map" />
+</div>
+<script language="JavaScript" type="text/javascript">
+
+	var OFFSET = 20;
+	
+	function generateMap()
+	{
+		var map = document.getElementById("map");
+		var form = document.forms.newMapForm;
+		var newUrl = "http://maps.google.com/maps/api/staticmap?center="+form.address.value+
+				"&zoom="+form.zoom.value+
+				"&size="+form.width.value+"x"+form.height.value+
+				"&maptype=roadmap"+
+				"&markers="+form.address.value+
+				"&sensor=false";
+		map.src = newUrl;
+		var mapDiv = document.getElementById("map");
+		mapDiv.style.width = form.width.value + "px";
+		mapDiv.style.height = form.height.value + "px";
+	}
+	
+	function validateAddress()
+	{
+		document.forms.newMapForm.submit();
+	}
+	
+	function zoomFunction(command)
+	{
+		var form = document.forms.newMapForm;
+		if( command == "-" )
+		{
+			form.width.value = form.width.value - OFFSET;
+			form.height.value = form.height.value - OFFSET;
+		} else {
+			form.width.value = eval(form.width.value) + OFFSET;
+			form.height.value = eval(form.height.value) + OFFSET;
+		}
+		generateMap();
+	}
+	
+	function zoomZoom(command)
+	{
+		var form = document.forms.newMapForm;
+		if( command == "-" )
+		{
+			form.zoom.value = form.zoom.value - 1;
+		} else {
+			form.zoom.value = eval(form.zoom.value) + 1;
+		}
+		generateMap();
+	}
+	
+</script>
