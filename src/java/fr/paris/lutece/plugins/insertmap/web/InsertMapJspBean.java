@@ -73,7 +73,7 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
      * @param request The Http Request
      * @return The html form.
      */
-    public final String getInsertServiceSelectorUI( HttpServletRequest request )
+    public String getInsertServiceSelectorUI( HttpServletRequest request )
     {
         init( request );
 
@@ -88,7 +88,7 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
         return template.getHtml(  );
     }
 
-    public final String doInsertLink( HttpServletRequest request )
+    public String doInsertLink( HttpServletRequest request )
     {
         String strTemplateName = request.getParameter( "mapName" );
 
