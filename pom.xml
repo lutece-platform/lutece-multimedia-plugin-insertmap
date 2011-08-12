@@ -39,8 +39,8 @@
 
 	<properties>
 		<componentName>insertmap</componentName>
-		<jiraProjectName>LUTECE</jiraProjectName>
-		<jiraComponentId>10045</jiraComponentId>
+		<jiraProjectName>INSERTMAP</jiraProjectName>
+		<jiraComponentId>10213</jiraComponentId>
 	</properties>
 
     <scm>
