@@ -1,17 +1,12 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<project name="Lutece">
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
 	<body>
 		<links>
 			<item name="EN" href="../index.html" />
 		</links>
-
-		<menu name="Téléchargements" inherit="bottom" >
+		<menu name="Aper&#231;u">
 			<item name="Introduction" href="index.html" />
-			<item name="Versions stables" href="../../../stable_builds/plugins/plugin-insertmap/"/>
-			<item name="Nightly builds" href="../../../nightly_builds/plugins/plugin-insertmap/" />
 		</menu>
-
 		<menu ref="reports" />
 	</body>
 </project>

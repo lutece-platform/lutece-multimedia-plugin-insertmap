@@ -1,22 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<properties>
-		<title>Lutèce : insertmap</title>
+		<title>Plugin insertmap</title>
 	</properties>
 	<body>
-		<section name="Bienvenue sur le projet InsertMap">
+		<section name="Plugin insertmap">
 			<subsection name="Introduction">
 				<p>
-					Le plugin InsertMap permet d'insérer des cartes dans votre portail.
-					Plusieurs cartes sont disponibles donc une carte google statique
+					Le plugin InsertMap permet d'insérer des cartes dans votre
+					portail.
+					Plusieurs cartes sont disponibles donc une carte google
+					statique
 					(api google stable et compatible
-					avec les contraintes d'accessibilité) ou une carte google dynamique
-					(api non stable et non accessible)
+					avec les contraintes
+					d'accessibilité) ou une carte google dynamique
+					(api non stable et
+					non accessible)
 				</p>
 			</subsection>
 			<subsection name="Configuration">
 				<p>
-					La clé google se configure dans "Site>Gestion des propriétés du	site"
+					La clé google se configure dans "Site>Gestion des propriétés du
+					site"
 				</p>
 			</subsection>
 		</section>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<properties>
-		<title>Lutece : insertmap</title>
+		<title>Plugin insertmap</title>
 	</properties>
 	<body>
-		<section name="Welcome to InsertMap">
+		<section name="Plugin insertmap">
 			<subsection name="Introduction">
 				<p>
-				Allows you to insert map into your pages (google maps). 
+					Allows you to insert map into your pages (google maps).
 				</p>
 			</subsection>
 			<subsection name="Configuration">
