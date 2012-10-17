@@ -1,5 +1,5 @@
 <div class="insert-service">
-	<form action="jsp/admin/plugins/insertmap/DoInsertMap.jsp" name="newMapForm">
+	<form action="jsp/admin/plugins/insertmap/DoInsertMap.jsp" class="form" name="newMapForm">
 	<input type="hidden" name="input" value="${input}" />
 	<input type="hidden" name="width" value="300" />
 	<input type="hidden" name="height" value="250"/>
@@ -10,28 +10,36 @@
 	<input type="radio" name="mapName" value="google" id="google" /> #i18n{insertmap.message.google.normal}<br />
 	<input type="radio" name="mapName" value="googlestatic" id="googlestatic" checked="checked" /> #i18n{insertmap.message.google.static}<br />
  -->
- 
-	#i18n{insertmap.message.addressChoose}<br />
-	<input id="address" name="address" value="227 rue de bercy, paris, france" type="text" size="45" onchange="generateMap()" />
-	<input type="button" value="Prévisualiser" onclick="generateMap()" />
-	<input type="button" value="Valider" onclick="validateAddress()" /><br />
-	<br />
-	<input type="button" value="-" onclick="zoomFunction('-')" />
-	<input type="button" value="+" onclick="zoomFunction('+')" />
-	#i18n{insertmap.message.zoomSize}<br />
-	<input type="button" value="-" onclick="zoomZoom('-')" />
-	<input type="button" value="+" onclick="zoomZoom('+')" />
-	#i18n{insertmap.message.zoomZoom}<br />
+ 	<p>#i18n{insertmap.message.addressChoose}</p>
+	<input id="address" name="address" value="227 rue de bercy, paris, france" type="text" class="input-normal" onchange="generateMap()" >
+	<button type="button" class="btn btn-primary btn-small" onclick="generateMap();" >
+		<i class="icon-eye-open icon-white"></i>&nbsp;#i18n{insertmap.button.preview}
+	</button>
+	<button type="button" class="btn btn-primary btn-small"  onclick="validateAddress();" >
+		<i class="icon-ok icon-white"></i>&nbsp;#i18n{insertmapbutton.validate}
+	</button>
+	<div class="well well-small">
+	<button type="button" class="btn btn-primary btn-mini" onclick="zoomFunction('-');" >
+		<i class="icon-minus icon-white"></i>
+	</button>
+	<button type="button" class="btn btn-primary btn-mini" value="+" onclick="zoomFunction('+');" >
+		<i class="icon-plus icon-white"></i>
+	</button>
+	#i18n{insertmap.message.zoomSize}
+	<button type="button" class="btn btn-primary btn-mini" onclick="zoomZoom('-');" >
+		<i class="icon-minus icon-white"></i>
+	</button>
+	<button type="button" class="btn btn-primary btn-mini" value="+" onclick="zoomZoom('+');" >
+		<i class="icon-plus icon-white"></i>
+	</button>
+	#i18n{insertmap.message.zoomZoom}
+	</div>
 	</form>
-	<br />
 	<img id="map" />
 </div>
-<script language="JavaScript" type="text/javascript">
-
+<script type="text/javascript">
 	var OFFSET = 20;
-	
-	function generateMap()
-	{
+	function generateMap(){
 		var map = document.getElementById("map");
 		var form = document.forms.newMapForm;
 		var newUrl = "http://maps.google.com/maps/api/staticmap?center="+form.address.value+
@@ -46,16 +54,13 @@
 		mapDiv.style.height = form.height.value + "px";
 	}
 	
-	function validateAddress()
-	{
+	function validateAddress(){
 		document.forms.newMapForm.submit();
 	}
 	
-	function zoomFunction(command)
-	{
+	function zoomFunction(command){
 		var form = document.forms.newMapForm;
-		if( command == "-" )
-		{
+		if( command == "-" ){
 			form.width.value = form.width.value - OFFSET;
 			form.height.value = form.height.value - OFFSET;
 		} else {
@@ -65,8 +70,7 @@
 		generateMap();
 	}
 	
-	function zoomZoom(command)
-	{
+	function zoomZoom(command){
 		var form = document.forms.newMapForm;
 		if( command == "-" )
 		{
@@ -76,5 +80,4 @@
 		}
 		generateMap();
 	}
-	
 </script>
