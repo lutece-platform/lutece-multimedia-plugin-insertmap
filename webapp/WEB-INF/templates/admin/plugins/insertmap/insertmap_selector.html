@@ -1,28 +1,25 @@
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
 <div class="insert-service">
 	<form action="jsp/admin/plugins/insertmap/DoInsertMap.jsp" class="form" name="newMapForm">
 	<input type="hidden" name="input" value="${input}" />
-	<input type="hidden" name="width" value="300" />
-	<input type="hidden" name="height" value="250"/>
+	<input type="hidden" name="width" value="400" />
+	<input type="hidden" name="height" value="400"/>
+	<input type="hidden" name="lat" value=""/>
+	<input type="hidden" name="lng" value=""/>
 	<input type="hidden" name="zoom" value="14"/>
-	<input type="hidden" name="mapName" value="googlestatic"/>
-<!-- 
-	#i18n{insertmap.message.mapChoose}<br />
-	<input type="radio" name="mapName" value="google" id="google" /> #i18n{insertmap.message.google.normal}<br />
-	<input type="radio" name="mapName" value="googlestatic" id="googlestatic" checked="checked" /> #i18n{insertmap.message.google.static}<br />
- -->
  	<p>#i18n{insertmap.message.addressChoose}</p>
 	<input id="address" name="address" value="227 rue de bercy, paris, france" type="text" class="input-normal" onchange="generateMap()" >
-	<button type="button" class="btn btn-primary btn-small" onclick="generateMap();" >
+	<button type="button" class="btn btn-primary btn-small" onclick="codeAddress();" >
 		<i class="icon-eye-open icon-white"></i>&nbsp;#i18n{insertmap.button.preview}
 	</button>
-	<button type="button" class="btn btn-primary btn-small"  onclick="validateAddress();" >
+	<button type="submit" class="btn btn-primary btn-small"  onclick="validateAddress();" >
 		<i class="icon-ok icon-white"></i>&nbsp;#i18n{insertmapbutton.validate}
 	</button>
 	<div class="well well-small">
-	<button type="button" class="btn btn-primary btn-mini" onclick="zoomFunction('-');" >
+	<button type="button" class="btn btn-primary btn-mini" onclick="changeSize('-');" >
 		<i class="icon-minus icon-white"></i>
 	</button>
-	<button type="button" class="btn btn-primary btn-mini" value="+" onclick="zoomFunction('+');" >
+	<button type="button" class="btn btn-primary btn-mini" value="+" onclick="changeSize('+');" >
 		<i class="icon-plus icon-white"></i>
 	</button>
 	#i18n{insertmap.message.zoomSize}
@@ -35,49 +32,66 @@
 	#i18n{insertmap.message.zoomZoom}
 	</div>
 	</form>
-	<img id="map" />
+	<div id="map-canvas"></div>
 </div>
 <script type="text/javascript">
 	var OFFSET = 20;
-	function generateMap(){
-		var map = document.getElementById("map");
-		var form = document.forms.newMapForm;
-		var newUrl = "http://maps.google.com/maps/api/staticmap?center="+form.address.value+
-				"&zoom="+form.zoom.value+
-				"&size="+form.width.value+"x"+form.height.value+
-				"&maptype=roadmap"+
-				"&markers="+form.address.value+
-				"&sensor=false";
-		map.src = newUrl;
-		var mapDiv = document.getElementById("map");
+	var geocoder;
+	var map;
+	var form = document.forms.newMapForm;
+
+	function initialize() {
+		geocoder = new google.maps.Geocoder();
+		var mapOptions = {
+			zoom : eval(document.forms.newMapForm.zoom.value),
+			disableDefaultUI : true
+		}
+		map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+		var mapDiv = document.getElementById('map-canvas');
 		mapDiv.style.width = form.width.value + "px";
 		mapDiv.style.height = form.height.value + "px";
+		codeAddress();
 	}
-	
-	function validateAddress(){
-		document.forms.newMapForm.submit();
+
+	function codeAddress() {
+		var address = document.getElementById('address').value;
+		geocoder.geocode({
+			'address' : address
+		}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				map.setCenter(results[0].geometry.location);
+				form.lat.value = results[0].geometry.location.nb;
+				form.lng.value = results[0].geometry.location.ob;
+				var marker = new google.maps.Marker({
+					map : map,
+					position : results[0].geometry.location
+				});
+			} else {
+				alert('Geocode was not successful for the following reason: '
+						+ status);
+			}
+		});
 	}
-	
-	function zoomFunction(command){
-		var form = document.forms.newMapForm;
-		if( command == "-" ){
+
+	google.maps.event.addDomListener(window, 'load', initialize);
+
+	function changeSize(command) {
+		if (command == "-") {
 			form.width.value = form.width.value - OFFSET;
 			form.height.value = form.height.value - OFFSET;
 		} else {
 			form.width.value = eval(form.width.value) + OFFSET;
 			form.height.value = eval(form.height.value) + OFFSET;
 		}
-		generateMap();
+		initialize();
 	}
-	
-	function zoomZoom(command){
-		var form = document.forms.newMapForm;
-		if( command == "-" )
-		{
+
+	function zoomZoom(command) {
+		if (command == "-") {
 			form.zoom.value = form.zoom.value - 1;
 		} else {
 			form.zoom.value = eval(form.zoom.value) + 1;
 		}
-		generateMap();
+		initialize();
 	}
 </script>

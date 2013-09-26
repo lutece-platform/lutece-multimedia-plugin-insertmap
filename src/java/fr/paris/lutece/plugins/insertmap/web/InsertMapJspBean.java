@@ -60,6 +60,8 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
     private static final String ZOOM = "zoom";
     private static final String HEIDHT = "height";
     private static final String ADDRESS = "address";
+    private static final String LAT = "lat";
+    private static final String LNG = "lng";
     private String input;
 
     private void init( HttpServletRequest request )
@@ -91,6 +93,10 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
     public String doInsertLink( HttpServletRequest request )
     {
         String strTemplateName = request.getParameter( "mapName" );
+        if(strTemplateName==null)
+        {
+        	strTemplateName = "osm";
+        }
 
         //get the name of the html tag to return to the WYNGZIG editor
         String strInput = request.getParameter( PARAMETER_INPUT );
@@ -103,6 +109,14 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
         model.put( ZOOM, request.getParameter( ZOOM ) );
         model.put( HEIDHT, request.getParameter( HEIDHT ) );
         model.put( ADDRESS, request.getParameter( ADDRESS ) );
+        String strLat = request.getParameter( LAT );
+        float lat = (float)Math.round(Float.parseFloat(strLat)*10000) / 10000;
+        strLat = Float.toString(lat).replaceAll(",", ".");
+        model.put( LAT, strLat );
+        String strLng = request.getParameter( LNG );
+        float lng = (float)Math.round(Float.parseFloat(strLng)*10000) / 10000;
+        strLng = Float.toString(lng).replaceAll(",", ".");
+        model.put( LNG, strLng );
 
         Locale locale = AdminUserService.getLocale( request );
         String strTemplateAddress = "admin/plugins/insertmap/insertmap_" + strTemplateName + "_default.html";
