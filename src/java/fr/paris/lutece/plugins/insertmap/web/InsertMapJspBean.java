@@ -52,7 +52,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class InsertMapJspBean extends InsertServiceJspBean implements InsertServiceSelectionBean
 {
-    private static final long serialVersionUID = 8529163405839151344L;
+	private static final long serialVersionUID = 8529163405839151344L;
     private static final String TEMPLATE_SELECTOR_PAGE = "admin/plugins/insertmap/insertmap_selector.html";
     private static final String PARAMETER_INPUT = "input";
     private static final String BASE_URL = "baseUrl";
@@ -62,6 +62,7 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
     private static final String ADDRESS = "address";
     private static final String LAT = "lat";
     private static final String LNG = "lng";
+    private static final int ROUND = 10000;
     private String input;
 
     private void init( HttpServletRequest request )
@@ -93,9 +94,10 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
     public String doInsertLink( HttpServletRequest request )
     {
         String strTemplateName = request.getParameter( "mapName" );
-        if(strTemplateName==null)
+
+        if ( strTemplateName == null )
         {
-        	strTemplateName = "osm";
+            strTemplateName = "osm";
         }
 
         //get the name of the html tag to return to the WYNGZIG editor
@@ -109,13 +111,15 @@ public final class InsertMapJspBean extends InsertServiceJspBean implements Inse
         model.put( ZOOM, request.getParameter( ZOOM ) );
         model.put( HEIDHT, request.getParameter( HEIDHT ) );
         model.put( ADDRESS, request.getParameter( ADDRESS ) );
+
         String strLat = request.getParameter( LAT );
-        float lat = (float)Math.round(Float.parseFloat(strLat)*10000) / 10000;
-        strLat = Float.toString(lat).replaceAll(",", ".");
+        float lat = (float) Math.round( Float.parseFloat( strLat ) * ROUND ) / ROUND;
+        strLat = Float.toString( lat ).replaceAll( ",", "." );
         model.put( LAT, strLat );
+
         String strLng = request.getParameter( LNG );
-        float lng = (float)Math.round(Float.parseFloat(strLng)*10000) / 10000;
-        strLng = Float.toString(lng).replaceAll(",", ".");
+        float lng = (float) Math.round( Float.parseFloat( strLng ) * ROUND ) / ROUND;
+        strLng = Float.toString( lng ).replaceAll( ",", "." );
         model.put( LNG, strLng );
 
         Locale locale = AdminUserService.getLocale( request );
