@@ -10,7 +10,7 @@
 	<groupId>fr.paris.lutece.plugins</groupId>
 	<artifactId>plugin-insertmap</artifactId>
 	<packaging>lutece-plugin</packaging>
-	<version>1.1.3</version>
+	<version>1.1.4-SNAPSHOT</version>
 	<name>Lutece insertmap plugin</name>
 
 	<repositories>
@@ -44,8 +44,8 @@
 	</properties>
 
     <scm>
-        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/tags/plugin-insertmap-1.1.3</connection>
-        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/tags/plugin-insertmap-1.1.3</developerConnection>
-        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/tags/plugin-insertmap-1.1.3</url>
+        <connection>scm:svn:http://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/cms/plugin-insertmap</connection>
+        <developerConnection>scm:svn:https://dev.lutece.paris.fr/svn/lutece/portal/trunk/plugins/cms/plugin-insertmap</developerConnection>
+        <url>http://dev.lutece.paris.fr/viewvc/lutece/portal/trunk/plugins/cms/plugin-insertmap</url>
     </scm>
 </project>
