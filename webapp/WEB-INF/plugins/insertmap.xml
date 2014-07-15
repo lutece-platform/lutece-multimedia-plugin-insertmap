@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
     <name>insertmap</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
-    <version>1.1.3</version>
+    <version>1.1.4-SNAPSHOT</version>
     <description>insertmap.plugin.description</description>
     <documentation/>
     <installation/>
