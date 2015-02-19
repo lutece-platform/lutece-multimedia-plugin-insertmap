@@ -10,7 +10,7 @@
     <groupId>fr.paris.lutece.plugins</groupId>
     <artifactId>plugin-insertmap</artifactId>
     <packaging>lutece-plugin</packaging>
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version>
     <name>Lutece insertmap plugin</name>
 
     <repositories>
@@ -48,7 +48,7 @@
         <developerConnection>scm:git:https://github.com/lutece-platform/lutece-multimedia-plugin-insertmap.git</developerConnection>
         <url>https://github.com/lutece-platform/lutece-multimedia-plugin-insertmap.git</url>
         
-      <tag>lutece-multimedia-plugin-insertmap-1.2.0</tag>
+      <tag>HEAD</tag>
   </scm>
     
 </project>
