@@ -1,111 +1,76 @@
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-<div class="row">
-	<div class="col-md-12 col-sm-12 col-xs-12">
-		<form action="jsp/admin/plugins/insertmap/DoInsertMap.jsp" class="form-horizontal" role="form" name="newMapForm">
-		<input type="hidden" name="input" value="${input}">
-		<input type="hidden" name="width" value="400">
-		<input type="hidden" name="height" value="400">
-		<input type="hidden" name="lat" value="">
-		<input type="hidden" name="lng" value="">
-		<input type="hidden" name="zoom" value="14">
-		<div class="form-group">
-			<label for="address" class="col-xs-4 col-sm-4 col-md-4">#i18n{insertmap.message.addressChoose}</label>
-			<div class="col-xs-8 col-sm-8 col-md-8">
-				<input id="address" name="address" value="227 rue de bercy, paris, france" type="text" class="form-control" onchange="generateMap()" >
-			</div>	
-		</div>	
-		<div class="form-group">
-			<div class="col-xs-8 col-sm-8 col-md-8">	
-				<button type="button" class="btn btn-primary btn-xs" onclick="changeSize('-');">
-					<i class="glyphicon glyphicon-minus"></i>
-				</button>
-				<button type="button" class="btn btn-primary btn-xs" value="+" onclick="changeSize('+');">
-					<i class="glyphicon glyphicon-plus"></i>
-				</button>
-				#i18n{insertmap.message.zoomSize}
-				<button type="button" class="btn btn-primary btn-xs" onclick="zoomZoom('-');">
-					<i class="glyphicon glyphicon-minus"></i>
-				</button>
-				<button type="button" class="btn btn-primary btn-xs" value="+" onclick="zoomZoom('+');">
-					<i class="glyphicon glyphicon-plus"></i>
-				</button>
-				#i18n{insertmap.message.zoomZoom}
-			</div>
-			<div class="col-xs-4 col-sm-4 col-md-4">	
-				<button type="button" class="btn btn-primary btn-sm" onclick="codeAddress();">
-					<i class="glyphicon glyphicon-eye-open"></i>&nbsp;#i18n{insertmap.button.preview}
-				</button>
-				<button type="submit" class="btn btn-primary btn-sm"  onclick="validateAddress();">
-					<i class="glyphicon glyphicon-ok"></i>&nbsp;#i18n{portal.util.labelOk}
-				</button>
-			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-12 col-md-12 col-xs-12">
-				<div id="map-canvas"></div>
-			</div>
-		</div>
-		</form>
-	</div>
-</div>
-<script type="text/javascript">
-	var OFFSET = 20;
-	var geocoder;
-	var map;
-	var form = document.forms.newMapForm;
-
-	function initialize() {
-		geocoder = new google.maps.Geocoder();
-		var mapOptions = {
-			zoom : eval(document.forms.newMapForm.zoom.value),
-			disableDefaultUI : true
-		}
-		map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-		var mapDiv = document.getElementById('map-canvas');
-		mapDiv.style.width = form.width.value + "px";
-		mapDiv.style.height = form.height.value + "px";
-		codeAddress();
-	}
-
-	function codeAddress() {
-		var address = document.getElementById('address').value;
-		geocoder.geocode({
-			'address' : address
-		}, function(results, status) {
-			if (status == google.maps.GeocoderStatus.OK) {
-				map.setCenter(results[0].geometry.location);
-				form.lat.value = results[0].geometry.location.nb;
-				form.lng.value = results[0].geometry.location.ob;
-				var marker = new google.maps.Marker({
-					map : map,
-					position : results[0].geometry.location
-				});
-			} else {
-				alert('Geocode was not successful for the following reason: '
-						+ status);
+<@row class='mt-3'>
+	<@columns>
+		<@tform name='insertMapForm' id='insertMapForm' action='jsp/admin/plugins/insertmap/InsertMap.jsp'>
+			<@input type='hidden' name='action' value='insertMap' />
+			<@input type='hidden' name='input' value=.data_model.input! />
+			<@input type='hidden' name='lat' id='lat' value='48.84652' />
+			<@input type='hidden' name='lng' id='lng' value='2.36973' />
+			<@formGroup labelKey='#i18n{insertmap.message.addressChoose}' labelFor='address'>
+				<@inputGroup>
+					<@input type='text' name='address' id='address' value='227 Rue de Bercy 75012 Paris' />
+					<@inputGroupItem type='btn'>
+						<@button type='button' id='searchAddress' title='#i18n{insertmap.button.search}' buttonIcon='search' />
+					</@inputGroupItem>
+				</@inputGroup>
+			</@formGroup>
+			<@alert color='warning' id='addressNotFound' class='d-none'>#i18n{insertmap.message.addressNotFound}</@alert>
+			<@formGroup labelKey='#i18n{insertmap.message.width}' labelFor='width'>
+				<@input type='number' name='width' id='width' value='400' min=100 max=2000 step=10 />
+			</@formGroup>
+			<@formGroup labelKey='#i18n{insertmap.message.height}' labelFor='height'>
+				<@input type='number' name='height' id='height' value='400' min=100 max=2000 step=10 />
+			</@formGroup>
+			<@formGroup labelKey='#i18n{insertmap.message.zoomZoom}' labelFor='zoom'>
+				<@input type='number' name='zoom' id='zoom' value='16' min=1 max=18 step=1 />
+			</@formGroup>
+			<@button type='submit' id='insertMapSubmit' title='#i18n{insertmap.button.insert}' buttonIcon='check' />
+		</@tform>
+		<iframe id="mapPreview" title="#i18n{insertmap.button.preview}" src="about:blank" class="border mt-3 w-100" height="460"></iframe>
+	</@columns>
+</@row>
+<script>
+document.addEventListener( 'DOMContentLoaded', function( ) {
+	const form = document.getElementById( 'insertMapForm' );
+	const preview = document.getElementById( 'mapPreview' );
+	const notFound = document.getElementById( 'addressNotFound' );
+	const refresh = function( ) {
+		const url = new URL( 'jsp/admin/plugins/insertmap/InsertMap.jsp', document.baseURI );
+		url.searchParams.set( 'view', 'previewMap' );
+		[ 'lat', 'lng', 'zoom', 'width', 'height' ].forEach( function( name ) {
+			url.searchParams.set( name, form.elements[ name ].value );
+		} );
+		preview.src = url.toString( );
+	};
+	const search = function( ) {
+		const url = new URL( 'https://data.geopf.fr/geocodage/search' );
+		url.searchParams.set( 'q', form.elements.address.value );
+		url.searchParams.set( 'limit', '1' );
+		fetch( url ).then( function( response ) {
+			return response.ok ? response.json( ) : { features: [] };
+		} ).catch( function( ) {
+			return { features: [] };
+		} ).then( function( result ) {
+			const found = result.features && result.features.length > 0;
+			notFound.classList.toggle( 'd-none', found );
+			if ( found ) {
+				const point = result.features[ 0 ];
+				form.elements.lng.value = point.geometry.coordinates[ 0 ];
+				form.elements.lat.value = point.geometry.coordinates[ 1 ];
+				form.elements.address.value = point.properties.label;
+				refresh( );
 			}
-		});
-	}
-
-	google.maps.event.addDomListener(window, 'load', initialize);
-
-	function changeSize(command) {
-		if (command == "-") {
-			form.width.value = form.width.value - OFFSET;
-			form.height.value = form.height.value - OFFSET;
-		} else {
-			form.width.value = eval(form.width.value) + OFFSET;
-			form.height.value = eval(form.height.value) + OFFSET;
+		} );
+	};
+	document.getElementById( 'searchAddress' ).addEventListener( 'click', search );
+	form.elements.address.addEventListener( 'keydown', function( event ) {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault( );
+			search( );
 		}
-		initialize();
-	}
-
-	function zoomZoom(command) {
-		if (command == "-") {
-			form.zoom.value = form.zoom.value - 1;
-		} else {
-			form.zoom.value = eval(form.zoom.value) + 1;
-		}
-		initialize();
-	}
+	} );
+	[ 'zoom', 'width', 'height' ].forEach( function( name ) {
+		form.elements[ name ].addEventListener( 'change', refresh );
+	} );
+	refresh( );
+} );
 </script>

@@ -1,0 +1,5 @@
+<#if bbox??>
+<#include "insertmap_map.html" />
+<#else>
+<@alert color='warning' class='m-3'>#i18n{insertmap.message.invalidMap}</@alert>
+</#if>

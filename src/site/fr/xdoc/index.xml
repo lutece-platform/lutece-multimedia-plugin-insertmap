@@ -7,24 +7,19 @@
 		<section name="Plugin insertmap">
 			<subsection name="Introduction">
 				<p>
-					Le plugin InsertMap permet d'insérer des cartes dans votre
-					portail.
-					Plusieurs cartes sont disponibles donc une carte google
-					statique
-					(api google stable et compatible
-					avec les contraintes
-					d'accessibilité) ou une carte google dynamique
-					(api non stable et
-					non accessible)
+					Service d'insertion de l'éditeur riche qui insère une carte. L'adresse saisie dans le sélecteur est géocodée par la Géoplateforme (data.geopf.fr, sans clé) ; largeur, hauteur et zoom se règlent avec un aperçu. Le contenu inséré est une image Plan IGN (WMS de la Géoplateforme, licence Etalab 2.0) centrée sur l'adresse avec un repère en son centre, liée à la page OpenStreetMap du point. Le balisage n'utilise que ce que le filtre HTML du back office Lutece 8 conserve (il supprime cadres, positionnement et images de fond) : le repère est placé par un bloc de hauteur nulle, <code>text-align</code> et <code>padding-top</code>, sans script.
 				</p>
 			</subsection>
-			<subsection name="Configuration">
+			<subsection name="Configuration du site">
 				<p>
-					La clé google se configure dans "Site>Gestion des propriétés du
-					site"
+					Les en-têtes de sécurité par défaut de Lutece 8 bloquent toute image et toute requête vers un tiers.
+					Dans « Système / Gestion des en-têtes de sécurité », pour les pages du back office et du front office :
 				</p>
+				<ul>
+					<li>Content-Security-Policy : ajouter <code>https://data.geopf.fr</code> à <code>img-src</code> (l'image de la carte) et à <code>connect-src</code> (back office, recherche d'adresse) ;</li>
+					<li>Cross-Origin-Embedder-Policy : <code>require-corp</code> refuse l'image de la carte, que data.geopf.fr sert sans en-tête Cross-Origin-Resource-Policy ; mettre <code>credentialless</code>.</li>
+				</ul>
 			</subsection>
 		</section>
 	</body>
 </document>
-          
