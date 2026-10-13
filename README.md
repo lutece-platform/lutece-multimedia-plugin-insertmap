@@ -3,11 +3,14 @@
 
 ##Introduction
 
-Allows you to insert map into your pages (google maps).
+Insert service of the rich text editor that inserts a map. The address typed in the selector is geocoded by the Geoplateforme service (data.geopf.fr, no key); width, height and zoom are chosen with a preview. The inserted content is a Plan IGN image (Geoplateforme WMS, Etalab 2.0 licence) centered on the address with a marker image at its center, linked to the OpenStreetMap page of the point. The markup only uses what the HTML filter of the Lutece 8 back office keeps (it removes frames, positioning and background images): the marker is placed by a zero-height block, `text-align` and `padding-top`, without script.
 
-##Configuration
+##Site configuration
 
-The google key must be configured into "Site / Manage site properties"
+The default security headers of Lutece 8 block any third-party image and request. In "System / Security header Management", for the back office and the front office pages:
+
+* Content-Security-Policy: add `https://data.geopf.fr` to `img-src` (the map image) and to `connect-src` (back office, address search);
+* Cross-Origin-Embedder-Policy: `require-corp` refuses the map image, which data.geopf.fr serves without a Cross-Origin-Resource-Policy header; set `credentialless`.
 
 
 [Maven documentation and reports](http://dev.lutece.paris.fr/plugins/plugin-insertmap/)

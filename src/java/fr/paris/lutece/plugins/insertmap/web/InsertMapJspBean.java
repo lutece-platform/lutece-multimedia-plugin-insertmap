@@ -34,98 +34,214 @@
 package fr.paris.lutece.plugins.insertmap.web;
 
 import fr.paris.lutece.portal.service.admin.AdminUserService;
+import fr.paris.lutece.portal.service.security.ISecurityTokenService;
+import fr.paris.lutece.portal.service.security.SecurityTokenHandler;
 import fr.paris.lutece.portal.service.template.AppTemplateService;
-import fr.paris.lutece.portal.service.util.AppPathService;
 import fr.paris.lutece.portal.web.insert.InsertServiceJspBean;
 import fr.paris.lutece.portal.web.insert.InsertServiceSelectionBean;
-import fr.paris.lutece.util.html.HtmlTemplate;
+
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
- *
+ * Insert service that inserts into a rich text editor a static map image (Plan IGN of the Geoplateforme) centered on a
+ * point, linked to the OpenStreetMap page of that point.
  */
-public final class InsertMapJspBean extends InsertServiceJspBean implements InsertServiceSelectionBean
+@RequestScoped
+public class InsertMapJspBean extends InsertServiceJspBean implements InsertServiceSelectionBean
 {
-	private static final long serialVersionUID = 8529163405839151344L;
-    private static final String TEMPLATE_SELECTOR_PAGE = "admin/plugins/insertmap/insertmap_selector.html";
-    private static final String PARAMETER_INPUT = "input";
-    private static final String BASE_URL = "baseUrl";
-    private static final String WIDTH = "width";
-    private static final String ZOOM = "zoom";
-    private static final String HEIDHT = "height";
-    private static final String ADDRESS = "address";
-    private static final String LAT = "lat";
-    private static final String LNG = "lng";
-    private static final int ROUND = 10000;
-    private String input;
+    private static final long serialVersionUID = 8529163405839151344L;
 
-    private void init( HttpServletRequest request )
+    private static final String TEMPLATE_SELECTOR = "admin/plugins/insertmap/insertmap_selector.html";
+    private static final String TEMPLATE_MAP = "admin/plugins/insertmap/insertmap_map.html";
+    private static final String TEMPLATE_PREVIEW = "admin/plugins/insertmap/insertmap_preview.html";
+
+    private static final String PARAMETER_INPUT = "input";
+    private static final String PARAMETER_LAT = "lat";
+    private static final String PARAMETER_LNG = "lng";
+    private static final String PARAMETER_ZOOM = "zoom";
+    private static final String PARAMETER_WIDTH = "width";
+    private static final String PARAMETER_HEIGHT = "height";
+
+    private static final String MARK_INPUT = "input";
+    private static final String MARK_LAT = "lat";
+    private static final String MARK_LNG = "lng";
+    private static final String MARK_ZOOM = "zoom";
+    private static final String MARK_WIDTH = "width";
+    private static final String MARK_HEIGHT = "height";
+    private static final String MARK_BBOX = "bbox";
+
+    private static final String FORMAT_COORDINATE = "%.5f";
+    private static final String FORMAT_BBOX = "%.1f,%.1f,%.1f,%.1f";
+
+    private static final double MAX_LAT = 85;
+    private static final double MAX_LNG = 180;
+    private static final int MIN_ZOOM = 1;
+    private static final int MAX_ZOOM = 18;
+    private static final int MIN_SIZE = 100;
+    private static final int MAX_SIZE = 2000;
+    private static final double TILE_SIZE = 256;
+    private static final double EARTH_RADIUS = 6378137;
+
+    /**
+     * Returns the map selector: address search, size and zoom, preview and insertion. The core instantiates this class by
+     * reflection, so the token service is looked up rather than injected.
+     *
+     * @param request
+     *            the HTTP request
+     * @return the HTML of the selector
+     */
+    @Override
+    public String getInsertServiceSelectorUI( HttpServletRequest request )
     {
-        input = request.getParameter( PARAMETER_INPUT ); //for the html popup to go in the WYSYWYG editor
+        Map<String, Object> model = new HashMap<>( );
+        model.put( MARK_INPUT, request.getParameter( PARAMETER_INPUT ) );
+        model.put( SecurityTokenHandler.MARK_CSRF_TOKEN, CDI.current( ).select( ISecurityTokenService.class ).get( ).getToken( request, InsertMapSelectorJspBean.ACTION_INSERT_MAP ) );
+
+        return AppTemplateService.getTemplate( TEMPLATE_SELECTOR, AdminUserService.getLocale( request ), model ).getHtml( );
     }
 
     /**
-     * Give the user the choose of the workspace
+     * Renders the map described by the request parameters.
      *
-     * @param request The Http Request
-     * @return The html form.
+     * @param request
+     *            the HTTP request
+     * @return the HTML of the map, or an empty string when a parameter is missing or out of range
      */
-    public String getInsertServiceSelectorUI( HttpServletRequest request )
+    public String getMapHtml( HttpServletRequest request )
     {
-        init( request );
+        Map<String, Object> model = getMapModel( request );
 
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        String strBaseUrl = AppPathService.getBaseUrl( request );
-        model.put( BASE_URL, strBaseUrl );
-        model.put( PARAMETER_INPUT, input );
-
-        Locale locale = AdminUserService.getLocale( request );
-        HtmlTemplate template = AppTemplateService.getTemplate( TEMPLATE_SELECTOR_PAGE, locale, model );
-
-        return template.getHtml(  );
-    }
-
-    public String doInsertLink( HttpServletRequest request )
-    {
-        String strTemplateName = request.getParameter( "mapName" );
-
-        if ( strTemplateName == null )
+        if ( model == null )
         {
-            strTemplateName = "osm";
+            return "";
         }
 
-        //get the name of the html tag to return to the WYNGZIG editor
-        String strInput = request.getParameter( PARAMETER_INPUT );
+        return AppTemplateService.getTemplate( TEMPLATE_MAP, AdminUserService.getLocale( request ), model ).getHtml( );
+    }
 
-        Map<String, Object> model = new HashMap<String, Object>(  );
-        String strBaseUrl = AppPathService.getBaseUrl( request );
-        model.put( BASE_URL, strBaseUrl );
-        model.put( ADDRESS, request.getParameter( ADDRESS ) );
-        model.put( WIDTH, request.getParameter( WIDTH ) );
-        model.put( ZOOM, request.getParameter( ZOOM ) );
-        model.put( HEIDHT, request.getParameter( HEIDHT ) );
-        model.put( ADDRESS, request.getParameter( ADDRESS ) );
+    /**
+     * Renders the preview of the map described by the request parameters.
+     *
+     * @param request
+     *            the HTTP request
+     * @return the HTML of the map, or a warning when a parameter is missing or out of range
+     */
+    public String getPreviewHtml( HttpServletRequest request )
+    {
+        Map<String, Object> model = getMapModel( request );
 
-        String strLat = request.getParameter( LAT );
-        float lat = (float) Math.round( Float.parseFloat( strLat ) * ROUND ) / ROUND;
-        strLat = Float.toString( lat ).replaceAll( ",", "." );
-        model.put( LAT, strLat );
+        return AppTemplateService.getTemplate( TEMPLATE_PREVIEW, AdminUserService.getLocale( request ), model == null ? new HashMap<>( ) : model )
+                .getHtml( );
+    }
 
-        String strLng = request.getParameter( LNG );
-        float lng = (float) Math.round( Float.parseFloat( strLng ) * ROUND ) / ROUND;
-        strLng = Float.toString( lng ).replaceAll( ",", "." );
-        model.put( LNG, strLng );
+    /**
+     * Builds the url that inserts the map into the calling editor field.
+     *
+     * @param request
+     *            the HTTP request
+     * @return the insertion url
+     */
+    public String getInsertMapUrl( HttpServletRequest request )
+    {
+        return insertUrl( request, request.getParameter( PARAMETER_INPUT ), StringEscapeUtils.escapeEcmaScript( getMapHtml( request ) ) );
+    }
 
-        Locale locale = AdminUserService.getLocale( request );
-        String strTemplateAddress = "admin/plugins/insertmap/insertmap_" + strTemplateName + "_default.html";
-        HtmlTemplate template = AppTemplateService.getTemplate( strTemplateAddress, locale, model );
+    /**
+     * Reads and checks the map parameters and computes, in Web Mercator (EPSG:3857), the bounding box shown at the
+     * requested zoom and size.
+     *
+     * @param request
+     *            the HTTP request
+     * @return the model of the map template, or null when a parameter is missing or out of range
+     */
+    private static Map<String, Object> getMapModel( HttpServletRequest request )
+    {
+        Double lat = parseDouble( request.getParameter( PARAMETER_LAT ), MAX_LAT );
+        Double lng = parseDouble( request.getParameter( PARAMETER_LNG ), MAX_LNG );
+        Integer zoom = parseInt( request.getParameter( PARAMETER_ZOOM ), MIN_ZOOM, MAX_ZOOM );
+        Integer width = parseInt( request.getParameter( PARAMETER_WIDTH ), MIN_SIZE, MAX_SIZE );
+        Integer height = parseInt( request.getParameter( PARAMETER_HEIGHT ), MIN_SIZE, MAX_SIZE );
 
-        return insertUrlWithoutEscape( request, strInput, template.getHtml(  ) );
+        if ( lat == null || lng == null || zoom == null || width == null || height == null )
+        {
+            return null;
+        }
+
+        double metersPerPixel = 2 * Math.PI * EARTH_RADIUS / ( TILE_SIZE * Math.pow( 2, zoom ) );
+        double x = Math.toRadians( lng ) * EARTH_RADIUS;
+        double y = Math.log( Math.tan( Math.PI / 4 + Math.toRadians( lat ) / 2 ) ) * EARTH_RADIUS;
+        double halfWidth = metersPerPixel * width / 2;
+        double halfHeight = metersPerPixel * height / 2;
+
+        Map<String, Object> model = new HashMap<>( );
+        model.put( MARK_LAT, String.format( Locale.ROOT, FORMAT_COORDINATE, lat ) );
+        model.put( MARK_LNG, String.format( Locale.ROOT, FORMAT_COORDINATE, lng ) );
+        model.put( MARK_ZOOM, zoom );
+        model.put( MARK_WIDTH, width );
+        model.put( MARK_HEIGHT, height );
+        model.put( MARK_BBOX, String.format( Locale.ROOT, FORMAT_BBOX, x - halfWidth, y - halfHeight, x + halfWidth, y + halfHeight ) );
+
+        return model;
+    }
+
+    /**
+     * Parses a coordinate.
+     *
+     * @param strValue
+     *            the value
+     * @param dMax
+     *            the largest absolute value accepted
+     * @return the coordinate, or null when it is not a number or out of range
+     */
+    private static Double parseDouble( String strValue, double dMax )
+    {
+        if ( strValue == null )
+        {
+            return null;
+        }
+
+        try
+        {
+            double dValue = Double.parseDouble( strValue );
+
+            return Math.abs( dValue ) <= dMax ? dValue : null;
+        }
+        catch( NumberFormatException e )
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Parses a bounded integer.
+     *
+     * @param strValue
+     *            the value
+     * @param nMin
+     *            the smallest value accepted
+     * @param nMax
+     *            the largest value accepted
+     * @return the integer, or null when it is not an integer or out of range
+     */
+    private static Integer parseInt( String strValue, int nMin, int nMax )
+    {
+        try
+        {
+            int nValue = Integer.parseInt( strValue );
+
+            return nValue >= nMin && nValue <= nMax ? nValue : null;
+        }
+        catch( NumberFormatException e )
+        {
+            return null;
+        }
     }
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?><plug-in>
     <name>insertmap</name>
     <class>fr.paris.lutece.portal.service.plugin.PluginDefaultImplementation</class>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <description>insertmap.plugin.description</description>
     <documentation/>
     <installation/>
@@ -12,7 +12,7 @@
     <icon-url>images/admin/skin/plugins/insertmap/insertmap.png</icon-url>
     <copyright>Copyright 2001-2008 Mairie de Paris</copyright>
     <core-version-dependency>
-		<min-core-version>2.3.0</min-core-version>
+		<min-core-version>8.0.0</min-core-version>
 		<max-core-version/>	
 	</core-version-dependency>
     <db-pool-required>0</db-pool-required>
